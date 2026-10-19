@@ -1,0 +1,56 @@
+.stamp {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6);
+  border: 2px solid currentColor;
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.label {
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  font-size: 2.2rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.line {
+  margin: var(--spacing-2) 0 0;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.AUTHENTIC {
+  color: var(--success);
+}
+
+.ALTERED {
+  color: var(--error);
+}
+
+.REVOKED {
+  color: var(--warning);
+}
+
+.NOT_FOUND {
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 520px) {
+  .stamp {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--spacing-4);
+  }
+  .label {
+    font-size: 1.8rem;
+  }
+}

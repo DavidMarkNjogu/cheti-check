@@ -124,6 +124,18 @@ export default function IssuerPage() {
             <Button type="submit" disabled={!canSubmit || issue.isPending}>
               {issue.isPending ? "Signing..." : "Sign and issue"}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setStudentName("Grace Muthoni Kariuki");
+                setAward("Bachelor of Science");
+                setProgramme("Computer Science");
+                setYear("2026");
+              }}
+            >
+              Fill demo certificate
+            </Button>
             {issue.isError && (
               <span className={styles.error}>
                 {issue.error instanceof Error

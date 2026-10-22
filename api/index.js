@@ -18295,6 +18295,7 @@ async function checkCredential(credentialId, fileHash) {
     status,
     fileCheck,
     revokedAt: row.revokedAt,
+    recordHash: row.recordHash,
     record: {
       studentName: row.studentName,
       institution: row.institution,

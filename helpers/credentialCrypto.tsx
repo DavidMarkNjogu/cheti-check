@@ -272,6 +272,7 @@ export async function checkCredential(credentialId: string, fileHash?: string) {
     status,
     fileCheck,
     revokedAt: row.revokedAt,
+    recordHash: row.recordHash,
     record: {
       studentName: row.studentName,
       institution: row.institution,

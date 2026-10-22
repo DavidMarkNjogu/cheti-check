@@ -36,6 +36,31 @@ export default function CredentialPage() {
     URL.revokeObjectURL(url);
   };
 
+  const downloadBundle = () => {
+    if (!q.data) return;
+    const bundle = {
+      standard: "ChetiCheck.v1",
+      credentialId: q.data.credentialId,
+      studentName: q.data.studentName,
+      institution: q.data.institution,
+      programme: q.data.programme,
+      award: q.data.award,
+      graduationYear: q.data.graduationYear,
+      recordHash: q.data.recordHash,
+      canonicalText: q.data.canonicalText,
+      issuedAt: q.data.issuedAt,
+    };
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${credentialId}.cheti.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className={styles.page}>
       <Helmet>
@@ -83,9 +108,13 @@ export default function CredentialPage() {
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? "Link copied" : "Copy share link"}
             </Button>
-            <Button onClick={download} variant="outline">
+            <Button onClick={downloadBundle} variant="outline" title="Download cryptographically verifiable credential bundle">
               <Download size={16} />
-              Download issued file
+              Download .cheti.json
+            </Button>
+            <Button onClick={download} variant="outline" title="Download canonical hash payload">
+              <Download size={16} />
+              Download raw .txt
             </Button>
             <Button onClick={() => window.print()} variant="outline">
               <Printer size={16} />

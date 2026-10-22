@@ -19,6 +19,17 @@ export default function VerifyPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (typeof parsed.canonicalText === "string") {
+        const buffer = await new Blob([parsed.canonicalText]).arrayBuffer();
+        setFileHash(await sha256Hex(buffer));
+        return;
+      }
+    } catch {
+      // Non-JSON file, fall through to raw binary arrayBuffer hashing
+    }
     setFileHash(await sha256Hex(await file.arrayBuffer()));
   };
 
@@ -95,7 +106,7 @@ export default function VerifyPage() {
               </p>
               <label className={styles.upload}>
                 <Upload size={18} strokeWidth={1.6} />
-                <span>{fileName ?? "Choose the issued file (.txt)"}</span>
+                <span>{fileName ?? "Choose issued file (.cheti.json or .txt)"}</span>
                 <Input
                   type="file"
                   onChange={onFile}
@@ -104,12 +115,12 @@ export default function VerifyPage() {
               </label>
               {data.fileCheck === "MATCH" && (
                 <p className={`${styles.fileResult} ${styles.ok}`}>
-                  <FileCheck2 size={18} /> File matches the issued record.
+                  <FileCheck2 size={18} /> Cryptographic SHA-256 digest matched issued record.
                 </p>
               )}
               {data.fileCheck === "MISMATCH" && (
                 <p className={`${styles.fileResult} ${styles.bad}`}>
-                  <FileX2 size={18} /> File differs from the issued record.
+                  <FileX2 size={18} /> Cryptographic hash mismatch: document altered or corrupted.
                 </p>
               )}
             </section>

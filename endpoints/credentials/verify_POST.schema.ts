@@ -15,6 +15,7 @@ export type OutputType = {
   status: "AUTHENTIC" | "ALTERED" | "REVOKED" | "NOT_FOUND";
   fileCheck?: "MATCH" | "MISMATCH" | null;
   revokedAt?: Date | null;
+  recordHash?: string;
   record?: {
     studentName: string;
     institution: string;

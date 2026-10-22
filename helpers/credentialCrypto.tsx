@@ -5,7 +5,37 @@ import {
   sign,
   verify,
 } from "node:crypto";
-import { db } from "./db";
+import { db, databaseUrl } from "./db";
+
+// Resilient in-memory fallback store for hackathon demo when DATABASE_URL is not set
+export type MemoryCredential = {
+  credentialId: string;
+  studentName: string;
+  institution: string;
+  programme: string;
+  award: string;
+  graduationYear: number;
+  signature: string;
+  recordHash: string;
+  revokedAt: Date | null;
+  revokeReason: string | null;
+  createdAt: Date;
+};
+
+export type MemoryAudit = {
+  id: number;
+  event: string;
+  credentialId: string;
+  detail: string | null;
+  createdAt: Date;
+};
+
+const memoryCredentials: MemoryCredential[] = [];
+const memoryAuditLog: MemoryAudit[] = [];
+let memoryKeys: { id: number; publicKeyPem: string; privateKeyPem: string } | null = null;
+let auditIdSeq = 1;
+
+export const isMemoryMode = () => !databaseUrl || databaseUrl.includes("missing:missing");
 
 // BACKEND ONLY. Demo signing key lives in the database for the hackathon demo.
 // Real use needs HSM / managed key storage (see PRD risk R4).
@@ -43,6 +73,18 @@ export const sha256Hex = (value: string) =>
   createHash("sha256").update(value, "utf8").digest("hex");
 
 export async function getKeys() {
+  if (isMemoryMode()) {
+    if (!memoryKeys) {
+      const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+      memoryKeys = {
+        id: 1,
+        publicKeyPem: publicKey.export({ type: "spki", format: "pem" }).toString(),
+        privateKeyPem: privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
+      };
+    }
+    return memoryKeys;
+  }
+
   const existing = await db
     .selectFrom("demoKeys")
     .selectAll()
@@ -87,6 +129,31 @@ export async function issueCredential(input: {
     Buffer.from(canonical, "utf8"),
     keys.privateKeyPem,
   ).toString("base64");
+  const recordHash = sha256Hex(canonical);
+
+  if (isMemoryMode()) {
+    memoryCredentials.push({
+      credentialId: record.credentialId,
+      studentName: record.studentName,
+      institution: record.institution,
+      programme: record.programme,
+      award: record.award,
+      graduationYear: record.graduationYear,
+      signature,
+      recordHash,
+      revokedAt: null,
+      revokeReason: null,
+      createdAt: new Date(),
+    });
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "ISSUED",
+      credentialId: record.credentialId,
+      detail: `${record.award}, ${record.graduationYear}`,
+      createdAt: new Date(),
+    });
+    return record.credentialId;
+  }
 
   await db
     .insertInto("credentials")
@@ -98,7 +165,7 @@ export async function issueCredential(input: {
       award: record.award,
       graduationYear: record.graduationYear,
       signature,
-      recordHash: sha256Hex(canonical),
+      recordHash,
     })
     .execute();
   await db
@@ -116,6 +183,21 @@ export async function revokeCredential(
   credentialId: string,
   reason: string,
 ): Promise<boolean> {
+  if (isMemoryMode()) {
+    const found = memoryCredentials.find((c) => c.credentialId === credentialId);
+    if (!found || found.revokedAt) return false;
+    found.revokedAt = new Date();
+    found.revokeReason = reason;
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "REVOKED",
+      credentialId,
+      detail: reason,
+      createdAt: new Date(),
+    });
+    return true;
+  }
+
   const res = await db
     .updateTable("credentials")
     .set({ revokedAt: new Date(), revokeReason: reason })
@@ -133,11 +215,33 @@ export async function revokeCredential(
 export type VerifyStatus = "AUTHENTIC" | "ALTERED" | "REVOKED" | "NOT_FOUND";
 
 export async function checkCredential(credentialId: string, fileHash?: string) {
-  const row = await db
-    .selectFrom("credentials")
-    .selectAll()
-    .where("credentialId", "=", credentialId)
-    .executeTakeFirst();
+  let row: MemoryCredential | undefined;
+
+  if (isMemoryMode()) {
+    row = memoryCredentials.find((c) => c.credentialId === credentialId);
+  } else {
+    const dbRow = await db
+      .selectFrom("credentials")
+      .selectAll()
+      .where("credentialId", "=", credentialId)
+      .executeTakeFirst();
+    if (dbRow) {
+      row = {
+        credentialId: dbRow.credentialId,
+        studentName: dbRow.studentName,
+        institution: dbRow.institution,
+        programme: dbRow.programme,
+        award: dbRow.award,
+        graduationYear: dbRow.graduationYear,
+        signature: dbRow.signature,
+        recordHash: dbRow.recordHash,
+        revokedAt: dbRow.revokedAt,
+        revokeReason: dbRow.revokeReason,
+        createdAt: dbRow.createdAt,
+      };
+    }
+  }
+
   if (!row) return { status: "NOT_FOUND" as VerifyStatus };
 
   const keys = await getKeys();
@@ -178,6 +282,30 @@ export async function checkCredential(credentialId: string, fileHash?: string) {
 }
 
 export async function ensureSeeded() {
+  if (isMemoryMode()) {
+    if (memoryCredentials.length > 0) return;
+    await issueCredential({
+      studentName: "Amina Wanjiru",
+      programme: "Computer Science",
+      award: "Bachelor of Science",
+      graduationYear: 2025,
+    });
+    const revokedId = await issueCredential({
+      studentName: "Brian Otieno",
+      programme: "Information Technology",
+      award: "Diploma",
+      graduationYear: 2024,
+    });
+    await issueCredential({
+      studentName: "Carol Njeri",
+      programme: "Data Skills",
+      award: "Short Course Certificate",
+      graduationYear: 2026,
+    });
+    await revokeCredential(revokedId, "ISSUED_IN_ERROR");
+    return;
+  }
+
   const first = await db
     .selectFrom("credentials")
     .select("credentialId")
@@ -203,4 +331,55 @@ export async function ensureSeeded() {
     graduationYear: 2026,
   });
   await revokeCredential(revokedId, "ISSUED_IN_ERROR");
+}
+
+export function getMemoryCredentials() {
+  const credentials = [...memoryCredentials]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .map((c) => ({
+      credentialId: c.credentialId,
+      studentName: c.studentName,
+      institution: c.institution,
+      programme: c.programme,
+      award: c.award,
+      graduationYear: c.graduationYear,
+      createdAt: c.createdAt,
+      revokedAt: c.revokedAt,
+      revokeReason: c.revokeReason,
+    }));
+  const audit = [...memoryAuditLog]
+    .sort((a, b) => b.id - a.id)
+    .slice(0, 40);
+  return { credentials, audit };
+}
+
+export function getMemoryHolderRecord(credentialId: string) {
+  const row = memoryCredentials.find((c) => c.credentialId === credentialId);
+  if (!row) return null;
+  return {
+    credentialId: row.credentialId,
+    studentName: row.studentName,
+    institution: row.institution,
+    programme: row.programme,
+    award: row.award,
+    graduationYear: row.graduationYear,
+    issuedAt: row.createdAt,
+    revokedAt: row.revokedAt,
+    recordHash: row.recordHash,
+    canonicalText: canonicalize(row),
+  };
+}
+
+export function tamperMemoryCredential(credentialId: string): boolean {
+  const row = memoryCredentials.find((c) => c.credentialId === credentialId);
+  if (!row) return false;
+  row.graduationYear += 1;
+  memoryAuditLog.push({
+    id: auditIdSeq++,
+    event: "TAMPER_DEMO",
+    credentialId,
+    detail: "Stored year changed without re-signing (demo)",
+    createdAt: new Date(),
+  });
+  return true;
 }

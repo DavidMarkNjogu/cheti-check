@@ -1,11 +1,25 @@
 import superjson from "superjson";
 import { db } from "../../helpers/db";
-import { canonicalize } from "../../helpers/credentialCrypto";
+import {
+  canonicalize,
+  isMemoryMode,
+  getMemoryHolderRecord,
+} from "../../helpers/credentialCrypto";
 import { schema, OutputType } from "./holder_POST.schema";
 
 export async function handle(request: Request) {
   try {
     const input = schema.parse(superjson.parse(await request.text()));
+    if (isMemoryMode()) {
+      const record = getMemoryHolderRecord(input.credentialId);
+      if (!record) {
+        return new Response(superjson.stringify({ error: "Credential not found" }), {
+          status: 404,
+        });
+      }
+      return new Response(superjson.stringify(record satisfies OutputType));
+    }
+
     const row = await db
       .selectFrom("credentials")
       .selectAll()

@@ -1,11 +1,20 @@
 import superjson from "superjson";
 import { db } from "../../helpers/db";
-import { ensureSeeded } from "../../helpers/credentialCrypto";
+import {
+  ensureSeeded,
+  isMemoryMode,
+  getMemoryCredentials,
+} from "../../helpers/credentialCrypto";
 import { OutputType } from "./list_GET.schema";
 
 export async function handle(request: Request) {
   try {
     await ensureSeeded();
+    if (isMemoryMode()) {
+      return new Response(
+        superjson.stringify(getMemoryCredentials() satisfies OutputType),
+      );
+    }
     const credentials = await db
       .selectFrom("credentials")
       .select([

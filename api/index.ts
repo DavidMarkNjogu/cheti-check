@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import superjson from "superjson";
 import { ensureSchema } from "../helpers/ensureSchema";
 import * as listGet from "../endpoints/credentials/list_GET";
 import * as issuePost from "../endpoints/credentials/issue_POST";
@@ -34,7 +35,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const send = (status: number, body: unknown) => {
     res.statusCode = status;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify(body));
+    res.end(superjson.stringify(body));
   };
   try {
     const url = new URL(req.url ?? "/", "https://app.local");

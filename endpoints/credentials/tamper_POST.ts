@@ -1,12 +1,21 @@
 import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
+import {
+  isMemoryMode,
+  tamperMemoryCredential,
+} from "../../helpers/credentialCrypto";
 import { schema, OutputType } from "./tamper_POST.schema";
 
 // DEMO ONLY: edits a stored record WITHOUT re-signing, to show the ALTERED state.
 export async function handle(request: Request) {
   try {
     const input = schema.parse(superjson.parse(await request.text()));
+    if (isMemoryMode()) {
+      const tampered = tamperMemoryCredential(input.credentialId);
+      return new Response(superjson.stringify({ tampered } satisfies OutputType));
+    }
+
     const res = await db
       .updateTable("credentials")
       .set({ graduationYear: sql<number>`graduation_year + 1` })

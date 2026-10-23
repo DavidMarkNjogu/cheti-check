@@ -1,34 +1,36 @@
-# Hackathon Knowledge Base & Visual Wiki
+# ChetiCheck: Verifiable Academic Credentials Knowledge Base
 
-**Target Audience**: Non-technical team members, presenters, student founders, and hackathon judges.  
-**Purpose**: An accessible, visual guide to the technical, legal, and operational reality behind **ChetiCheck** and **Salama Shule**.  
-**Live Interactive Web Version**: [https://cheticheck.vercel.app/wiki.html](https://cheticheck.vercel.app/wiki.html)
+**Audience**: Hackathon judges, university registrars, enterprise recruiters, student founders, and technical evaluators.  
+**Purpose**: An accessible, authoritative guide to the cryptographic, legal, and operational reality behind **ChetiCheck**.  
+**Repository Wiki**: [GitHub Wiki Page](wiki)
 
 ---
 
-## Executive Navigation & Quick Links
+## Navigation & Core Topics
 
 ```text
-├── 1. The Government Monopoly Myth (KNEC vs ChetiCheck)
-├── 2. Centralized Database Honeypots vs Asymmetric Cryptography
-├── 3. The Incumbent LMS Myth (Moodle/Canvas vs Salama Shule)
-├── 4. Zero-Trust Client Scoring (Why the Bank Teller Counts Cash)
-├── 5. Kenyan Institutional Realities (PPADA 2015 & University Procurement)
-└── 6. Legal Compliance (KDPA 2019 & Cryptographic Shredding)
+├── 1. The Government Monopoly Myth (KNEC vs University Charters)
+├── 2. Centralized Database Honeypots vs Asymmetric Ed25519 Signatures
+├── 3. Why Not Blockchain? (The Gas Fee & Privacy Trap)
+├── 4. Instant Offline Verification & Merkle Root Anchoring
+├── 5. Institutional Realities & Commercial Model (PPADA 2015 & KES 250 API)
+└── 6. Legal Compliance & Cryptographic Shredding (KDPA 2019 Right to Erasure)
 ```
 
 ---
 
-## 1. The Government Monopoly Myth (KNEC vs ChetiCheck)
+## 1. The Government Monopoly Myth (KNEC vs University Charters)
 
-A common assumption during hackathon evaluations is: *"The Kenyan Government already has a portal (KNEC) and a central database, so why do we need ChetiCheck?"*
+A frequent objection raised during hackathon judging is:  
+*"The Kenyan Government already runs KNEC and a national exam database. Why would universities or employers use ChetiCheck?"*
 
-This assumption confuses two completely separate regulatory bodies in Kenya:
+This objection confuses two fundamentally distinct regulatory jurisdictions in Kenya:
 
 ```mermaid
 flowchart TD
-    subgraph K12["KNEC Jurisdiction (K-12 Education)"]
-        K1["Primary Schools (KCPE)"]
+    subgraph K12["KNEC Jurisdiction (Basic K-12 Education)"]
+        direction TB
+        K1["Primary Schools (KCPE / KPSEA)"]
         K2["Secondary Schools (KCSE)"]
         K3["Basic National TVET Certificates"]
         K1 & K2 & K3 --> KP["KNEC QMIS Portal<br/>(qmis.knec.ac.ke)"]
@@ -36,6 +38,7 @@ flowchart TD
     end
 
     subgraph HigherEd["University Jurisdiction (Autonomous Charters & CUE)"]
+        direction TB
         U1["Riara University"]
         U2["Strathmore University"]
         U3["University of Nairobi"]
@@ -44,32 +47,32 @@ flowchart TD
         CC --> CR["- Under 200 Milliseconds<br/>- Zero Cost to Student<br/>- Instant Smartphone QR Scan"]
     end
 
-    style K12 fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#f8fafc
-    style HigherEd fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc
-    style KP fill:#374151,stroke:#f59e0b,stroke-width:1px,color:#ffffff
-    style CC fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#ffffff
+    style K12 fill:#1a2332,stroke:#b4552d,stroke-width:2px,color:#f5f0e6
+    style HigherEd fill:#1f4d43,stroke:#dfd7c2,stroke-width:2px,color:#f5f0e6
+    style KP fill:#2b3a4a,stroke:#b4552d,stroke-width:1px,color:#ffffff
+    style CC fill:#143730,stroke:#f5f0e6,stroke-width:2px,color:#ffffff
 ```
 
 ### The Legal Reality:
 - **KNEC has zero jurisdiction, zero database records, and zero mandate over university degrees or postgraduate diplomas.**
-- University degrees in Kenya are legally autonomous under individual University Charters and regulated exclusively by the **Commission for University Education (CUE)**.
-- If an employer approaches KNEC to verify a Bachelor of Science from Riara University, KNEC will turn them away.
-- ChetiCheck solves the massive higher-education credential fraud market that KNEC does not touch.
+- Under the **Universities Act (No. 42 of 2012)**, chartered universities in Kenya are autonomous degree-granting bodies regulated by the **Commission for University Education (CUE)**, not KNEC.
+- If an employer approaches KNEC to verify a Bachelor of Science from Riara University, KNEC cannot verify it. The employer must physically send someone to the university registry or wait weeks for registry letters.
+- **ChetiCheck closes the multi-billion-shilling credential fraud market in higher education that KNEC is legally and operationally incapable of addressing.**
 
 ### Comparison Table: KNEC QMIS vs ChetiCheck
 
 | Feature | KNEC QMIS Portal (`qmis.knec.ac.ke`) | ChetiCheck Platform |
-|---|---|---|
-| **Target Sector** | Primary & Secondary (KCPE / KCSE) | **Higher Education Degrees, Diplomas, & Short Courses** |
-| **Verification Speed** | **10 to 14 working days** (approx. 2 weeks) | **Under 200 milliseconds** (instant) |
-| **Cost to Verify** | **KES 2,280 – KES 2,320** per letter | **Free for graduate**, KES 250 for corporate API pull |
+| :--- | :--- | :--- |
+| **Target Sector** | Primary & Secondary (KCPE / KCSE) | **Higher Education Degrees, Diplomas, & Certificates** |
+| **Verification Speed** | **10 to 14 working days** | **Under 200 milliseconds** (instant) |
+| **Cost to Verify** | **KES 2,280 – KES 2,320** per letter | **Free for graduate**, KES 250 for enterprise HR API |
 | **Verification Method** | Manual staff search in physical/digital archives | Instant mathematical check against public key |
-| **Delivery Mechanism** | Physical paper letter or courier dispatch | Real-time digital stamp on any smartphone camera |
-| **Tamper Resistance** | Paper letter can still be scanned and altered in Photoshop | Cryptographic Ed25519 signature breaks if 1 byte changes |
+| **Delivery Mechanism** | Physical stamped paper letter via courier | Real-time digital stamp on any smartphone camera |
+| **Tamper Resistance** | Paper letter can still be photoshopped | Cryptographic Ed25519 signature breaks if 1 byte changes |
 
 ---
 
-## 2. Centralized Database Honeypots vs Asymmetric Cryptography
+## 2. Centralized Database Honeypots vs Asymmetric Ed25519 Signatures
 
 Why does ChetiCheck use **asymmetric Ed25519 digital signatures** instead of just hosting a normal database like traditional university systems?
 
@@ -94,84 +97,45 @@ sequenceDiagram
 ```
 
 ### The Plain-English Mental Model:
-- **The Centralized Database Approach**: Trust is placed in whoever currently controls the server. If a rogue database administrator takes a bribe or an SQL injection vulnerability occurs, the database happily tells employers that a forged degree is valid.
-- **The ChetiCheck Cryptographic Approach**: Trust is placed in mathematical law. When the degree is issued, the university registrar seals it with the university's private signing key. Even if a hacker alters the database or photoshops a PDF, the mathematical signature does not match the altered data. The verification screen immediately flashes **Altered**.
+- **The Centralized Database Vulnerability**: Trust is placed in whoever currently has access to the database credentials. If a rogue administrator takes a bribe or an SQL injection exploit occurs, the database happily tells employers that a forged degree is valid.
+- **The ChetiCheck Cryptographic Solution**: Trust is placed in mathematical law. When the degree is issued, the university registrar seals it with the university's private signing key. Even if a bad actor alters the database or photoshops a PDF, the mathematical signature does not match the altered data. The verification screen immediately flashes **Altered**.
 
 ---
 
-## 3. The Incumbent LMS Myth (Moodle/Canvas vs Salama Shule)
+## 3. Why Not Blockchain? (The Gas Fee & Privacy Trap)
 
-Judges often ask: *"Riara and other universities already run Moodle or Canvas. Both have mobile apps. Why does Salama Shule exist?"*
+Judges often ask: *"Why didn't you build this on Ethereum, Polygon, or Hyperledger?"*
 
-```mermaid
-flowchart LR
-    subgraph Heavy["Moodle Mobile (The 40-Ton Lorry)"]
-        M1["65 Megabytes App Store Download"]
-        M2["Requires High RAM & Storage"]
-        M3["Often Uninstalled by Students to Save Space"]
-        M4["Complex Navigation & Heavy Server Sync"]
-    end
-
-    subgraph Agile["Salama Shule (The Nimble Boda-Boda)"]
-        S1["135 Kilobytes Progressive Web App (Zero Install)"]
-        S2["Runs inside WhatsApp Link on 1GB RAM Phones"]
-        S3["Uses 98% Less Cellular Data to Initialize"]
-        S4["Automatic Background Sync with Zero-Trust Grading"]
-    end
-
-    style Heavy fill:#1e293b,stroke:#ef4444,stroke-width:2px,color:#f8fafc
-    style Agile fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc
-```
-
-### The Field Reality:
-- In Kenya, entry-level smartphones (Tecno, Infinix, itel) typically have 16GB or 32GB of total storage, running Android Go.
-- Students actively uninstall heavy 50MB+ applications because storage runs out.
-- Salama Shule requires **zero installation from Google Play**. It launches directly from a lecturer's WhatsApp link, caches the lesson unit in IndexedDB under 135kB, and operates completely offline.
+1. **Transaction Fees (Gas Costs)**: Issuing 5,000 university degrees every graduation season on a public blockchain costs thousands of dollars in gas fees. ChetiCheck issuance cost is **zero**.
+2. **Permanent Data Exposure (KDPA Violation)**: Public blockchain records are immutable forever. If a student's graduation data is permanently etched onto a public ledger, it violates the **Right to Erasure** under Section 35 of the Kenya Data Protection Act 2019.
+3. **Throughput & Speed**: Blockchain confirmations take seconds to minutes. ChetiCheck asymmetric cryptographic verification takes **less than 2 milliseconds** client-side.
 
 ---
 
-## 4. Zero-Trust Client Scoring: Why the Bank Teller Counts Cash
+## 4. Instant Offline Verification & Merkle Anchoring
 
-When a student finishes a quiz offline, why doesn't the backend just accept the score calculated on their phone?
-
-```mermaid
-flowchart TD
-    Student["Student (Phone Offline)"] --> LocalScore["Phone Evaluates Score: 3/3 (Claim)"]
-    LocalScore --> Queue["IndexedDB Queue with SHA-256 Digest"]
-    
-    Queue --> Reconnect{"Network Reconnected?"}
-    Reconnect -->|"Yes"| Transmit["Background POST /attempts/sync<br/>(Raw Answers [1, 0, 2] + Claim 3/3)"]
-    
-    Transmit --> Server["Cloud Server Inspection"]
-    Server --> ReMark["Server Independently Evaluates Answers Against Master Keys"]
-    
-    ReMark --> Match{"Server Score == Phone Claim?"}
-    Match -->|"Yes"| Confirmed["Marked as Synced<br/>(Score: 3/3)"]
-    Match -->|"No (Tampered)"| Flagged["Server Overrides with True Score<br/>Flag: 'Re-marked by server'"]
-```
-
-### The Plain-English Mental Model:
-When you go to an ATM or a bank teller, you can write "KES 50,000" on the deposit slip. The bank does not credit your account based on your handwriting; the teller feeds the physical banknotes into a counting machine. In Salama Shule:
-- The score shown on the student's phone is strictly an **unverified claim** to encourage the student offline.
-- Upon reconnection, the server independently counts the raw answers against the master answer key. If a student altered their browser storage to claim 100%, the server re-marks the quiz to their true score and flags the discrepancy on the Lecturer Dashboard.
+ChetiCheck certificates can be verified **100% offline**:
+- The QR code contains the full signed JSON credential payload (or canonical SHA-256 digest + Ed25519 signature).
+- A verifier's smartphone holds the university's public verification key.
+- The browser calculates `SHA-256(payload)` and runs `Ed25519.verify(digest, signature, publicKey)`.
+- If connectivity is unavailable, verification succeeds purely mathematically on the device without contacting the cloud.
 
 ---
 
-## 5. Kenyan Institutional Realities (PPADA 2015 & Procurement)
+## 5. Institutional Realities & Commercial Model
 
 ### The 18-Month Procurement Obstacle:
-Kenyan chartered private and public universities are bound by strict procurement protocols (under the Public Procurement and Asset Disposal Act - PPADA 2015). Selling an enterprise-wide LMS or credential system takes 12 to 18 months of tender notices, ICT committee vetting, Senate approvals, and budget allocations.
+Kenyan chartered universities are bound by strict procurement protocols (under the Public Procurement and Asset Disposal Act - PPADA 2015). Selling an enterprise-wide infrastructure overhaul takes 12 to 18 months of tender notices, ICT committee vetting, Senate approvals, and budget allocations.
 
-### ChetiCheck & Salama Shule Strategy: The Departmental Pilot
-- **We do not sell enterprise infrastructure overhauls.**
-- **Zero Cost to Faculty**: Lecturers and registrars adopt the platforms as a departmental teaching and continuous-assessment utility at zero setup cost.
-- **Downstream Monetization**:
-  - For ChetiCheck: Corporate recruiting agencies (BrighterMonday, Shortlist, corporate banks) pay **KES 250 per instant API query** to replace weeks of manual registry clearance calls.
-  - For Salama Shule: Departmental continuous assessment modules operate friction-free without requiring university Senate tender approval.
+### ChetiCheck Commercial Strategy:
+- **Zero Cost to Universities**: Universities issue certificates using our lightweight registrar portal with zero infrastructure upgrade costs.
+- **Monetizing Enterprise Verifiers**:
+  - Graduate verification via mobile camera is free forever.
+  - Large corporate employers, banks, and recruitment agencies (e.g. BrighterMonday, Shortlist, corporate banks) pay **KES 250 per instant bulk API verification** to replace 3-week manual registry clearance processes.
 
 ---
 
-## 6. Legal Compliance (KDPA 2019 & Cryptographic Shredding)
+## 6. Legal Compliance & Cryptographic Shredding (KDPA 2019)
 
 Under Section 35 of the **Kenya Data Protection Act 2019 (KDPA)**, individuals have a statutory **Right to Erasure** ("Right to be Forgotten"). How can ChetiCheck comply if cryptographic records are tamper-proof?
 

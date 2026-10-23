@@ -1,0 +1,41 @@
+import { z } from "zod";
+import superjson from "superjson";
+import { ApplicationCopySummary } from "./list_GET.schema";
+
+export const schema = z.object({
+  credentialId: z.string().trim().min(4).max(64),
+  recipientName: z.string().trim().min(2).max(100),
+  purpose: z.string().trim().min(2).max(200),
+});
+
+export type InputType = z.infer<typeof schema>;
+
+export type OutputType = {
+  copy: ApplicationCopySummary;
+};
+
+export const postCreateCopy = async (
+  body: InputType,
+  init?: RequestInit,
+): Promise<OutputType> => {
+  const validated = schema.parse(body);
+  const result = await fetch(`/_api/credentials/create_copy`, {
+    method: "POST",
+    body: superjson.stringify(validated),
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+  });
+  const text = await result.text();
+  if (!result.ok) {
+    try {
+      const err = superjson.parse<{ error: string }>(text);
+      throw new Error(err.error || `HTTP ${result.status}`);
+    } catch (e) {
+      if (e instanceof Error && e.message && !e.message.includes("is not valid JSON")) {
+        throw e;
+      }
+      throw new Error(text.slice(0, 160) || `HTTP ${result.status}`);
+    }
+  }
+  return superjson.parse<OutputType>(text);
+};

@@ -21,6 +21,14 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
             Verify
           </NavLink>
           <NavLink
+            to="/wallet"
+            className={({ isActive }) =>
+              `${styles.navLink} ${isActive ? styles.active : ""}`
+            }
+          >
+            Graduate wallet
+          </NavLink>
+          <NavLink
             to="/issuer"
             className={({ isActive }) =>
               `${styles.navLink} ${isActive ? styles.active : ""}`

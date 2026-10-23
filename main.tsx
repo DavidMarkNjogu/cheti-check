@@ -11,6 +11,8 @@ import VerifyPage from "./pages/verify.$credentialId";
 import verifyLayout from "./pages/verify.$credentialId.pageLayout";
 import CredentialPage from "./pages/credential.$credentialId";
 import credentialLayout from "./pages/credential.$credentialId.pageLayout";
+import WalletPage from "./pages/wallet";
+import walletLayout from "./pages/wallet.pageLayout";
 
 type Layout = React.ComponentType<{ children: React.ReactNode }>;
 const page = (layouts: Layout[], Page: React.ComponentType) =>
@@ -25,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
       <GlobalContextProviders>
         <Routes>
           <Route path="/" element={page(homeLayout, HomePage)} />
+          <Route path="/wallet" element={page(walletLayout, WalletPage)} />
           <Route path="/issuer" element={page(issuerLayout, IssuerPage)} />
           <Route path="/verify/:credentialId" element={page(verifyLayout, VerifyPage)} />
           <Route path="/credential/:credentialId" element={page(credentialLayout, CredentialPage)} />

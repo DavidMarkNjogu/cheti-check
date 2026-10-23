@@ -2,7 +2,7 @@ import { z } from "zod";
 import superjson from "superjson";
 
 export const schema = z.object({
-  credentialId: z.string().trim().min(4).max(40),
+  credentialId: z.string().trim().min(4).max(64),
   fileHash: z
     .string()
     .regex(/^[a-fA-F0-9]{64}$/)
@@ -12,10 +12,29 @@ export const schema = z.object({
 export type InputType = z.infer<typeof schema>;
 
 export type OutputType = {
-  status: "AUTHENTIC" | "ALTERED" | "REVOKED" | "NOT_FOUND";
+  status:
+    | "AUTHENTIC"
+    | "ALTERED"
+    | "REVOKED"
+    | "NOT_FOUND"
+    | "AUTHENTIC_COPY"
+    | "ALTERED_COPY"
+    | "COPY_DEACTIVATED";
   fileCheck?: "MATCH" | "MISMATCH" | null;
   revokedAt?: Date | null;
   recordHash?: string;
+  copy?: {
+    copyId: string;
+    recipientName: string;
+    purpose: string;
+    deactivatedAt: Date | null;
+    createdAt: Date;
+  };
+  forensicAttribution?: {
+    copyId: string;
+    recipientName: string;
+    leakedAt: Date;
+  };
   record?: {
     studentName: string;
     institution: string;

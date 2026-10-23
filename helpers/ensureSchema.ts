@@ -30,6 +30,25 @@ create table if not exists audit_log (
   detail text,
   created_at timestamptz not null default now()
 );
+create table if not exists application_copies (
+  copy_id text primary key,
+  credential_id text not null,
+  recipient_name text not null,
+  purpose text not null,
+  copy_hash text not null,
+  deactivated_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create table if not exists misuse_incidents (
+  id serial primary key,
+  copy_id text not null,
+  credential_id text not null,
+  recipient_name text not null,
+  student_name text not null,
+  mismatches text not null,
+  status text not null default 'ACTIVE_ALERT',
+  created_at timestamptz not null default now()
+);
 `;
 
 let ready: Promise<void> | null = null;

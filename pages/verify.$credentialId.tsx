@@ -57,6 +57,63 @@ export default function VerifyPage() {
         <>
           <VerdictStamp status={data.status} />
 
+          {/* APPLICATION COPY CONTEXT */}
+          {data.copy && (
+            <div
+              style={{
+                marginTop: "1rem",
+                padding: "0.85rem 1.25rem",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius)",
+                fontSize: "0.9rem",
+              }}
+            >
+              <div>
+                <strong>Application Copy Context:</strong> Labeled for{" "}
+                <span style={{ color: "var(--primary)", fontWeight: 600 }}>
+                  {data.copy.recipientName}
+                </span>{" "}
+                ({data.copy.purpose})
+              </div>
+              <div
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--muted-foreground)",
+                  marginTop: 4,
+                }}
+              >
+                Copy ID: <code>{data.copy.copyId}</code> &middot; Generated on{" "}
+                {new Date(data.copy.createdAt).toLocaleDateString()}
+              </div>
+            </div>
+          )}
+
+          {/* FORENSIC ATTRIBUTION ALERT */}
+          {data.forensicAttribution && (
+            <div
+              style={{
+                marginTop: "1rem",
+                padding: "1rem 1.25rem",
+                background: "#fdf2f2",
+                border: "2px solid var(--error)",
+                borderRadius: "var(--radius)",
+                color: "var(--error)",
+              }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                Forensic Misuse Attribution:
+              </div>
+              <div style={{ fontSize: "0.88rem", color: "var(--foreground)" }}>
+                This altered credential originated from Copy ID{" "}
+                <code>{data.forensicAttribution.copyId}</code> issued to{" "}
+                <strong>{data.forensicAttribution.recipientName}</strong>. A
+                private security alert and evidence payload have been dispatched
+                to the graduate's wallet and the issuing university registrar.
+              </div>
+            </div>
+          )}
+
           {data.record && (
             <dl className={styles.record}>
               <div>

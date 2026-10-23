@@ -48,6 +48,18 @@
   color: var(--warning);
 }
 
+.AUTHENTIC_COPY {
+  color: var(--success);
+}
+
+.ALTERED_COPY {
+  color: var(--error);
+}
+
+.COPY_DEACTIVATED {
+  color: var(--warning);
+}
+
 .NOT_FOUND {
   color: var(--muted-foreground);
 }

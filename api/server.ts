@@ -7,6 +7,10 @@ import * as revokePost from "../endpoints/credentials/revoke_POST";
 import * as tamperPost from "../endpoints/credentials/tamper_POST";
 import * as verifyPost from "../endpoints/credentials/verify_POST";
 import * as holderPost from "../endpoints/credentials/holder_POST";
+import * as copiesGet from "../endpoints/credentials/copies_GET";
+import * as createCopyPost from "../endpoints/credentials/create_copy_POST";
+import * as deactivateCopyPost from "../endpoints/credentials/deactivate_copy_POST";
+import * as misuseAlertsGet from "../endpoints/credentials/misuse_alerts_GET";
 
 type Handle = (request: Request) => Promise<Response>;
 
@@ -17,6 +21,10 @@ const routes: Record<string, Handle> = {
   "POST credentials/tamper": tamperPost.handle,
   "POST credentials/verify": verifyPost.handle,
   "POST credentials/holder": holderPost.handle,
+  "GET credentials/copies": copiesGet.handle,
+  "POST credentials/create_copy": createCopyPost.handle,
+  "POST credentials/deactivate_copy": deactivateCopyPost.handle,
+  "GET credentials/misuse_alerts": misuseAlertsGet.handle,
 };
 
 async function readBody(req: IncomingMessage): Promise<Uint8Array | undefined> {

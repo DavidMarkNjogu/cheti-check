@@ -918,10 +918,10 @@ var CreateSchemaNode = freeze({
   is(node) {
     return node.kind === "CreateSchemaNode";
   },
-  create(schema6, params) {
+  create(schema8, params) {
     return freeze({
       kind: "CreateSchemaNode",
-      schema: IdentifierNode.create(schema6),
+      schema: IdentifierNode.create(schema8),
       ...params
     });
   },
@@ -989,10 +989,10 @@ var SchemableIdentifierNode = freeze({
       identifier: IdentifierNode.create(identifier)
     });
   },
-  createWithSchema(schema6, identifier) {
+  createWithSchema(schema8, identifier) {
     return freeze({
       kind: "SchemableIdentifierNode",
-      schema: IdentifierNode.create(schema6),
+      schema: IdentifierNode.create(schema8),
       identifier: IdentifierNode.create(identifier)
     });
   }
@@ -1023,10 +1023,10 @@ var DropSchemaNode = freeze({
   is(node) {
     return node.kind === "DropSchemaNode";
   },
-  create(schema6, params) {
+  create(schema8, params) {
     return freeze({
       kind: "DropSchemaNode",
-      schema: IdentifierNode.create(schema6),
+      schema: IdentifierNode.create(schema8),
       ...params
     });
   },
@@ -1083,10 +1083,10 @@ var TableNode = freeze({
       table: SchemableIdentifierNode.create(table)
     });
   },
-  createWithSchema(schema6, table) {
+  createWithSchema(schema8, table) {
     return freeze({
       kind: "TableNode",
-      table: SchemableIdentifierNode.createWithSchema(schema6, table)
+      table: SchemableIdentifierNode.createWithSchema(schema8, table)
     });
   }
 });
@@ -1699,8 +1699,8 @@ function parseOrderedColumnName(column) {
   }
 }
 function parseStringReferenceWithTableAndSchema(parts) {
-  const [schema6, table, column] = parts;
-  return ReferenceNode.create(ColumnNode.create(column), TableNode.createWithSchema(schema6, table));
+  const [schema8, table, column] = parts;
+  return ReferenceNode.create(ColumnNode.create(column), TableNode.createWithSchema(schema8, table));
 }
 function parseStringReferenceWithTable(parts) {
   const [table, column] = parts;
@@ -6352,9 +6352,9 @@ var WithSchemaTransformer = class extends OperationNodeTransformer {
   #schema;
   #schemableIds = /* @__PURE__ */ new Set();
   #ctes = /* @__PURE__ */ new Set();
-  constructor(schema6) {
+  constructor(schema8) {
     super();
-    this.#schema = schema6;
+    this.#schema = schema8;
   }
   transformNodeImpl(node, queryId) {
     if (!this.#isRootOperationNode(node)) {
@@ -6503,8 +6503,8 @@ var WithSchemaTransformer = class extends OperationNodeTransformer {
 // node_modules/kysely/dist/esm/plugin/with-schema/with-schema-plugin.js
 var WithSchemaPlugin = class {
   #transformer;
-  constructor(schema6) {
-    this.#transformer = new WithSchemaTransformer(schema6);
+  constructor(schema8) {
+    this.#transformer = new WithSchemaTransformer(schema8);
   }
   transformQuery(args) {
     return this.#transformer.transformNode(args.node, args.queryId);
@@ -7873,10 +7873,10 @@ var QueryCreator = class _QueryCreator {
    * select "p"."name" from "mammals"."pet" as "p"
    * ```
    */
-  withSchema(schema6) {
+  withSchema(schema8) {
     return new _QueryCreator({
       ...this.#props,
-      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema6))
+      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema8))
     });
   }
 };
@@ -9340,8 +9340,8 @@ function createExpressionBuilder(executor = NOOP_QUERY_EXECUTOR) {
     cast(expr, dataType) {
       return new ExpressionWrapper(CastNode.create(parseReferenceExpression(expr), parseDataTypeExpression(dataType)));
     },
-    withSchema(schema6) {
-      return createExpressionBuilder(executor.withPluginAtFront(new WithSchemaPlugin(schema6)));
+    withSchema(schema8) {
+      return createExpressionBuilder(executor.withPluginAtFront(new WithSchemaPlugin(schema8)));
     }
   });
   eb.fn = createFunctionModule();
@@ -9436,8 +9436,8 @@ function parseAliasedTable(from) {
 function parseTable(from) {
   const SCHEMA_SEPARATOR = ".";
   if (from.includes(SCHEMA_SEPARATOR)) {
-    const [schema6, table] = from.split(SCHEMA_SEPARATOR).map(trim2);
-    return TableNode.createWithSchema(schema6, table);
+    const [schema8, table] = from.split(SCHEMA_SEPARATOR).map(trim2);
+    return TableNode.createWithSchema(schema8, table);
   } else {
     return TableNode.create(from);
   }
@@ -12358,11 +12358,11 @@ var SchemaModule = class _SchemaModule {
    *   .execute()
    * ```
    */
-  createSchema(schema6) {
+  createSchema(schema8) {
     return new CreateSchemaBuilder({
       queryId: createQueryId(),
       executor: this.#executor,
-      node: CreateSchemaNode.create(schema6)
+      node: CreateSchemaNode.create(schema8)
     });
   }
   /**
@@ -12376,11 +12376,11 @@ var SchemaModule = class _SchemaModule {
    *   .execute()
    * ```
    */
-  dropSchema(schema6) {
+  dropSchema(schema8) {
     return new DropSchemaBuilder({
       queryId: createQueryId(),
       executor: this.#executor,
-      node: DropSchemaNode.create(schema6)
+      node: DropSchemaNode.create(schema8)
     });
   }
   /**
@@ -12517,8 +12517,8 @@ var SchemaModule = class _SchemaModule {
   /**
    * See {@link QueryCreator.withSchema}
    */
-  withSchema(schema6) {
-    return new _SchemaModule(this.#executor.withPluginAtFront(new WithSchemaPlugin(schema6)));
+  withSchema(schema8) {
+    return new _SchemaModule(this.#executor.withPluginAtFront(new WithSchemaPlugin(schema8)));
   }
 };
 
@@ -13302,10 +13302,10 @@ var Kysely = class _Kysely extends QueryCreator {
   /**
    * @override
    */
-  withSchema(schema6) {
+  withSchema(schema8) {
     return new _Kysely({
       ...this.#props,
-      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema6))
+      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema8))
     });
   }
   /**
@@ -13413,10 +13413,10 @@ var Transaction = class _Transaction extends Kysely {
       executor: this.#props.executor.withoutPlugins()
     });
   }
-  withSchema(schema6) {
+  withSchema(schema8) {
     return new _Transaction({
       ...this.#props,
-      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema6))
+      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema8))
     });
   }
   withTables() {
@@ -13732,10 +13732,10 @@ var ControlledTransaction = class _ControlledTransaction extends Transaction {
       executor: this.#props.executor.withoutPlugins()
     });
   }
-  withSchema(schema6) {
+  withSchema(schema8) {
     return new _ControlledTransaction({
       ...this.#props,
-      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema6))
+      executor: this.#props.executor.withPluginAtFront(new WithSchemaPlugin(schema8))
     });
   }
   withTables() {
@@ -15523,14 +15523,14 @@ var PostgresIntrospector = class {
     const tableDictionary = /* @__PURE__ */ new Map();
     for (let i = 0, len = columns.length; i < len; i++) {
       const column = columns[i];
-      const { schema: schema6, table } = column;
-      const tableKey = `schema:${schema6};table:${table}`;
+      const { schema: schema8, table } = column;
+      const tableKey = `schema:${schema8};table:${table}`;
       if (!tableDictionary.has(tableKey)) {
         tableDictionary.set(tableKey, freeze({
           columns: [],
           isView: column.table_type === "v",
           name: table,
-          schema: schema6
+          schema: schema8
         }));
       }
       tableDictionary.get(tableKey).columns.push(freeze({
@@ -16764,7 +16764,7 @@ function Connection(options, queues = {}, { onopen = noop2, onend = noop2, onclo
         break;
       }
       try {
-        handle7(incoming.subarray(0, length + 1));
+        handle11(incoming.subarray(0, length + 1));
       } catch (e) {
         query && (query.cursorFn || query.describeFirst) && write(Sync);
         errored(e);
@@ -16871,7 +16871,7 @@ function Connection(options, queues = {}, { onopen = noop2, onend = noop2, onclo
     delay = (typeof backoff2 === "function" ? backoff2(options.shared.retries) : backoff2) * 1e3;
     onclose(connection2, Errors.connection("CONNECTION_CLOSED", options, socket));
   }
-  function handle7(xs, x = xs[0]) {
+  function handle11(xs, x = xs[0]) {
     (x === 68 ? DataRow : (
       // D
       x === 100 ? CopyData : (
@@ -17457,13 +17457,13 @@ function Subscribe(postgres2, options) {
     }
     function data(x2) {
       if (x2[0] === 119) {
-        parse2(x2.subarray(25), state2, sql4.options.parsers, handle7, options.transform);
+        parse2(x2.subarray(25), state2, sql4.options.parsers, handle11, options.transform);
       } else if (x2[0] === 107 && x2[17]) {
         state2.lsn = x2.subarray(1, 9);
         pong();
       }
     }
-    function handle7(a, b2) {
+    function handle11(a, b2) {
       const path = b2.relation.schema + "." + b2.relation.table;
       call("*", a, b2);
       call("*:" + path, a, b2);
@@ -17487,7 +17487,7 @@ function Subscribe(postgres2, options) {
 function Time(x) {
   return new Date(Date.UTC(2e3, 0, 1) + Number(x / BigInt(1e3)));
 }
-function parse2(x, state, parsers2, handle7, transform) {
+function parse2(x, state, parsers2, handle11, transform) {
   const char = (acc, [k, v]) => (acc[k.charCodeAt(0)] = v, acc);
   Object.entries({
     R: (x2) => {
@@ -17526,7 +17526,7 @@ function parse2(x, state, parsers2, handle7, transform) {
       let i = 1;
       const relation = state[x2.readUInt32BE(i)];
       const { row } = tuples(x2, relation.columns, i += 7, transform);
-      handle7(row, {
+      handle11(row, {
         command: "insert",
         relation
       });
@@ -17536,7 +17536,7 @@ function parse2(x, state, parsers2, handle7, transform) {
       const relation = state[x2.readUInt32BE(i)];
       i += 4;
       const key = x2[i] === 75;
-      handle7(
+      handle11(
         key || x2[i] === 79 ? tuples(x2, relation.columns, i += 3, transform).row : null,
         {
           command: "delete",
@@ -17553,7 +17553,7 @@ function parse2(x, state, parsers2, handle7, transform) {
       const xs = key || x2[i] === 79 ? tuples(x2, relation.columns, i += 3, transform) : null;
       xs && (i = xs.i);
       const { row } = tuples(x2, relation.columns, i + 3, transform);
-      handle7(row, {
+      handle11(row, {
         command: "update",
         relation,
         key,
@@ -18104,6 +18104,25 @@ create table if not exists audit_log (
   detail text,
   created_at timestamptz not null default now()
 );
+create table if not exists application_copies (
+  copy_id text primary key,
+  credential_id text not null,
+  recipient_name text not null,
+  purpose text not null,
+  copy_hash text not null,
+  deactivated_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create table if not exists misuse_incidents (
+  id serial primary key,
+  copy_id text not null,
+  credential_id text not null,
+  recipient_name text not null,
+  student_name text not null,
+  mismatches text not null,
+  status text not null default 'ACTIVE_ALERT',
+  created_at timestamptz not null default now()
+);
 `;
 var ready = null;
 function ensureSchema() {
@@ -18132,8 +18151,11 @@ import {
 } from "node:crypto";
 var memoryCredentials = [];
 var memoryAuditLog = [];
+var memoryCopies = [];
+var memoryMisuseIncidents = [];
 var memoryKeys = null;
 var auditIdSeq = 1;
+var misuseIdSeq = 1;
 var isMemoryMode = () => !databaseUrl || databaseUrl.includes("missing:missing");
 var INSTITUTION = "DEMO INSTITUTION";
 var ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
@@ -18247,12 +18269,82 @@ async function revokeCredential(credentialId, reason) {
   await db.insertInto("auditLog").values({ event: "REVOKED", credentialId, detail: reason }).execute();
   return true;
 }
+async function createApplicationCopy(input) {
+  const slug = input.recipientName.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+  const copyId = `${input.credentialId}-CPY-${slug || "APP"}-${makeId().slice(0, 4)}`;
+  const copyHash = sha256Hex(`${input.credentialId}:${input.recipientName}:${input.purpose}`);
+  const copy2 = {
+    copyId,
+    credentialId: input.credentialId,
+    recipientName: input.recipientName,
+    purpose: input.purpose,
+    copyHash,
+    createdAt: /* @__PURE__ */ new Date(),
+    deactivatedAt: null
+  };
+  if (isMemoryMode()) {
+    memoryCopies.push(copy2);
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "COPY_GENERATED",
+      credentialId: input.credentialId,
+      detail: `Application copy generated for ${input.recipientName} (${input.purpose})`,
+      createdAt: /* @__PURE__ */ new Date()
+    });
+    return copy2;
+  }
+  await db.insertInto("applicationCopies").values({
+    copyId: copy2.copyId,
+    credentialId: copy2.credentialId,
+    recipientName: copy2.recipientName,
+    purpose: copy2.purpose,
+    copyHash: copy2.copyHash,
+    createdAt: copy2.createdAt
+  }).execute();
+  await db.insertInto("auditLog").values({
+    event: "COPY_GENERATED",
+    credentialId: input.credentialId,
+    detail: `Application copy generated for ${input.recipientName} (${input.purpose})`
+  }).execute();
+  return copy2;
+}
+async function deactivateCopy(copyId) {
+  if (isMemoryMode()) {
+    const found = memoryCopies.find((c) => c.copyId === copyId);
+    if (!found || found.deactivatedAt) return false;
+    found.deactivatedAt = /* @__PURE__ */ new Date();
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "COPY_DEACTIVATED",
+      credentialId: found.credentialId,
+      detail: `Application copy ${copyId} for ${found.recipientName} deactivated by graduate`,
+      createdAt: /* @__PURE__ */ new Date()
+    });
+    return true;
+  }
+  const res = await db.updateTable("applicationCopies").set({ deactivatedAt: /* @__PURE__ */ new Date() }).where("copyId", "=", copyId).where("deactivatedAt", "is", null).executeTakeFirst();
+  return Number(res.numUpdatedRows) > 0;
+}
+function listApplicationCopies(credentialId) {
+  if (credentialId) {
+    return memoryCopies.filter((c) => c.credentialId === credentialId);
+  }
+  return [...memoryCopies];
+}
+function listMisuseIncidents(credentialId) {
+  if (credentialId) {
+    return memoryMisuseIncidents.filter((m) => m.credentialId === credentialId);
+  }
+  return [...memoryMisuseIncidents];
+}
 async function checkCredential(credentialId, fileHash) {
+  let matchedCopy = memoryCopies.find((c) => c.copyId === credentialId);
+  let effectiveCredentialId = matchedCopy ? matchedCopy.credentialId : credentialId;
   let row;
   if (isMemoryMode()) {
-    row = memoryCredentials.find((c) => c.credentialId === credentialId);
+    row = memoryCredentials.find((c) => c.credentialId === effectiveCredentialId);
   } else {
-    const dbRow = await db.selectFrom("credentials").selectAll().where("credentialId", "=", credentialId).executeTakeFirst();
+    const dbRow = await db.selectFrom("credentials").selectAll().where("credentialId", "=", effectiveCredentialId).executeTakeFirst();
     if (dbRow) {
       row = {
         credentialId: dbRow.credentialId,
@@ -18288,14 +18380,53 @@ async function checkCredential(credentialId, fileHash) {
     fileCheck = fileHash.toLowerCase() === row.recordHash ? "MATCH" : "MISMATCH";
   }
   let status = "AUTHENTIC";
-  if (!signatureOk) status = "ALTERED";
-  else if (row.revokedAt) status = "REVOKED";
-  else if (fileCheck === "MISMATCH") status = "ALTERED";
+  if (matchedCopy) {
+    if (matchedCopy.deactivatedAt) {
+      status = "COPY_DEACTIVATED";
+    } else if (!signatureOk || fileCheck === "MISMATCH") {
+      status = "ALTERED_COPY";
+      const existing = memoryMisuseIncidents.find((m) => m.copyId === matchedCopy.copyId);
+      if (!existing) {
+        memoryMisuseIncidents.unshift({
+          id: misuseIdSeq++,
+          copyId: matchedCopy.copyId,
+          credentialId: matchedCopy.credentialId,
+          recipientName: matchedCopy.recipientName,
+          studentName: row.studentName,
+          mismatches: [
+            "Cryptographic signature check failed or file hash mismatch against issuer records"
+          ],
+          status: "ACTIVE_ALERT",
+          detectedAt: /* @__PURE__ */ new Date()
+        });
+      }
+    } else if (row.revokedAt) {
+      status = "REVOKED";
+    } else {
+      status = "AUTHENTIC_COPY";
+    }
+  } else {
+    if (!signatureOk) status = "ALTERED";
+    else if (row.revokedAt) status = "REVOKED";
+    else if (fileCheck === "MISMATCH") status = "ALTERED";
+  }
   return {
     status,
     fileCheck,
     revokedAt: row.revokedAt,
     recordHash: row.recordHash,
+    copy: matchedCopy ? {
+      copyId: matchedCopy.copyId,
+      recipientName: matchedCopy.recipientName,
+      purpose: matchedCopy.purpose,
+      deactivatedAt: matchedCopy.deactivatedAt,
+      createdAt: matchedCopy.createdAt
+    } : void 0,
+    forensicAttribution: matchedCopy && status === "ALTERED_COPY" ? {
+      copyId: matchedCopy.copyId,
+      recipientName: matchedCopy.recipientName,
+      leakedAt: matchedCopy.createdAt
+    } : void 0,
     record: {
       studentName: row.studentName,
       institution: row.institution,
@@ -18307,6 +18438,12 @@ async function checkCredential(credentialId, fileHash) {
 async function ensureSeeded() {
   if (isMemoryMode()) {
     if (memoryCredentials.length > 0) return;
+    const graceId2 = await issueCredential({
+      studentName: "Grace Muthoni Kariuki",
+      programme: "Computer Science",
+      award: "Bachelor of Science in Computer Science",
+      graduationYear: 2026
+    });
     await issueCredential({
       studentName: "Amina Wanjiru",
       programme: "Computer Science",
@@ -18326,10 +18463,40 @@ async function ensureSeeded() {
       graduationYear: 2026
     });
     await revokeCredential(revokedId2, "ISSUED_IN_ERROR");
+    const safaricomCopy = await createApplicationCopy({
+      credentialId: graceId2,
+      recipientName: "Safaricom PLC",
+      purpose: "Graduate Software Engineer Trainee 2026"
+    });
+    await createApplicationCopy({
+      credentialId: graceId2,
+      recipientName: "KCB Bank Kenya",
+      purpose: "Junior Cloud Infrastructure Analyst"
+    });
+    memoryMisuseIncidents.push({
+      id: misuseIdSeq++,
+      copyId: safaricomCopy.copyId,
+      credentialId: graceId2,
+      recipientName: "Safaricom PLC",
+      studentName: "Grace Muthoni Kariuki",
+      mismatches: [
+        "Classification altered: Expected 'First Class Honours', received 'Executive Distinction'",
+        "Graduation year altered: Expected 2026, received 2024"
+      ],
+      status: "ACTIVE_ALERT",
+      detectedAt: new Date(Date.now() - 1e3 * 60 * 45)
+      // 45 mins ago
+    });
     return;
   }
   const first = await db.selectFrom("credentials").select("credentialId").limit(1).executeTakeFirst();
   if (first) return;
+  const graceId = await issueCredential({
+    studentName: "Grace Muthoni Kariuki",
+    programme: "Computer Science",
+    award: "Bachelor of Science in Computer Science",
+    graduationYear: 2026
+  });
   await issueCredential({
     studentName: "Amina Wanjiru",
     programme: "Computer Science",
@@ -18349,6 +18516,11 @@ async function ensureSeeded() {
     graduationYear: 2026
   });
   await revokeCredential(revokedId, "ISSUED_IN_ERROR");
+  await createApplicationCopy({
+    credentialId: graceId,
+    recipientName: "Safaricom PLC",
+    purpose: "Graduate Software Engineer Trainee 2026"
+  });
 }
 function getMemoryCredentials() {
   const credentials = [...memoryCredentials].sort((a, b2) => b2.createdAt.getTime() - a.createdAt.getTime()).map((c) => ({
@@ -18363,7 +18535,9 @@ function getMemoryCredentials() {
     revokeReason: c.revokeReason
   }));
   const audit = [...memoryAuditLog].sort((a, b2) => b2.id - a.id).slice(0, 40);
-  return { credentials, audit };
+  const copies = [...memoryCopies].sort((a, b2) => b2.createdAt.getTime() - a.createdAt.getTime());
+  const misuseIncidents = [...memoryMisuseIncidents].sort((a, b2) => b2.detectedAt.getTime() - a.detectedAt.getTime());
+  return { credentials, audit, copies, misuseIncidents };
 }
 function getMemoryHolderRecord(credentialId) {
   const row = memoryCredentials.find((c) => c.credentialId === credentialId);
@@ -20761,9 +20935,9 @@ var ZodArray = class _ZodArray extends ZodType {
     return this.min(1, message);
   }
 };
-ZodArray.create = (schema6, params) => {
+ZodArray.create = (schema8, params) => {
   return new ZodArray({
-    type: schema6,
+    type: schema8,
     minLength: null,
     maxLength: null,
     exactLength: null,
@@ -20771,30 +20945,30 @@ ZodArray.create = (schema6, params) => {
     ...processCreateParams(params)
   });
 };
-function deepPartialify(schema6) {
-  if (schema6 instanceof ZodObject) {
+function deepPartialify(schema8) {
+  if (schema8 instanceof ZodObject) {
     const newShape = {};
-    for (const key in schema6.shape) {
-      const fieldSchema = schema6.shape[key];
+    for (const key in schema8.shape) {
+      const fieldSchema = schema8.shape[key];
       newShape[key] = ZodOptional.create(deepPartialify(fieldSchema));
     }
     return new ZodObject({
-      ...schema6._def,
+      ...schema8._def,
       shape: () => newShape
     });
-  } else if (schema6 instanceof ZodArray) {
+  } else if (schema8 instanceof ZodArray) {
     return new ZodArray({
-      ...schema6._def,
-      type: deepPartialify(schema6.element)
+      ...schema8._def,
+      type: deepPartialify(schema8.element)
     });
-  } else if (schema6 instanceof ZodOptional) {
-    return ZodOptional.create(deepPartialify(schema6.unwrap()));
-  } else if (schema6 instanceof ZodNullable) {
-    return ZodNullable.create(deepPartialify(schema6.unwrap()));
-  } else if (schema6 instanceof ZodTuple) {
-    return ZodTuple.create(schema6.items.map((item) => deepPartialify(item)));
+  } else if (schema8 instanceof ZodOptional) {
+    return ZodOptional.create(deepPartialify(schema8.unwrap()));
+  } else if (schema8 instanceof ZodNullable) {
+    return ZodNullable.create(deepPartialify(schema8.unwrap()));
+  } else if (schema8 instanceof ZodTuple) {
+    return ZodTuple.create(schema8.items.map((item) => deepPartialify(item)));
   } else {
-    return schema6;
+    return schema8;
   }
 }
 var ZodObject = class _ZodObject extends ZodType {
@@ -21010,8 +21184,8 @@ var ZodObject = class _ZodObject extends ZodType {
   //   }) as any;
   //   return merged;
   // }
-  setKey(key, schema6) {
-    return this.augment({ [key]: schema6 });
+  setKey(key, schema8) {
+    return this.augment({ [key]: schema8 });
   }
   // merge<Incoming extends AnyZodObject>(
   //   merging: Incoming
@@ -21457,10 +21631,10 @@ var ZodTuple = class _ZodTuple extends ZodType {
       status.dirty();
     }
     const items = [...ctx.data].map((item, itemIndex) => {
-      const schema6 = this._def.items[itemIndex] || this._def.rest;
-      if (!schema6)
+      const schema8 = this._def.items[itemIndex] || this._def.rest;
+      if (!schema8)
         return null;
-      return schema6._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex));
+      return schema8._parse(new ParseInputLazyPath(ctx, item, ctx.path, itemIndex));
     }).filter((x) => !!x);
     if (ctx.common.async) {
       return Promise.all(items).then((results) => {
@@ -21974,9 +22148,9 @@ var ZodPromise = class extends ZodType {
     }));
   }
 };
-ZodPromise.create = (schema6, params) => {
+ZodPromise.create = (schema8, params) => {
   return new ZodPromise({
-    type: schema6,
+    type: schema8,
     typeName: ZodFirstPartyTypeKind.ZodPromise,
     ...processCreateParams(params)
   });
@@ -22104,17 +22278,17 @@ var ZodEffects = class extends ZodType {
     util.assertNever(effect);
   }
 };
-ZodEffects.create = (schema6, effect, params) => {
+ZodEffects.create = (schema8, effect, params) => {
   return new ZodEffects({
-    schema: schema6,
+    schema: schema8,
     typeName: ZodFirstPartyTypeKind.ZodEffects,
     effect,
     ...processCreateParams(params)
   });
 };
-ZodEffects.createWithPreprocess = (preprocess, schema6, params) => {
+ZodEffects.createWithPreprocess = (preprocess, schema8, params) => {
   return new ZodEffects({
-    schema: schema6,
+    schema: schema8,
     effect: { type: "preprocess", transform: preprocess },
     typeName: ZodFirstPartyTypeKind.ZodEffects,
     ...processCreateParams(params)
@@ -22556,7 +22730,7 @@ async function handle4(request) {
 
 // endpoints/credentials/verify_POST.schema.ts
 var schema4 = external_exports.object({
-  credentialId: external_exports.string().trim().min(4).max(40),
+  credentialId: external_exports.string().trim().min(4).max(64),
   fileHash: external_exports.string().regex(/^[a-fA-F0-9]{64}$/).optional()
 });
 
@@ -22625,6 +22799,88 @@ async function handle6(request) {
   }
 }
 
+// endpoints/credentials/copies_GET.ts
+async function handle7(request) {
+  try {
+    const url = new URL(request.url);
+    const credentialId = url.searchParams.get("credentialId") ?? void 0;
+    const copies = listApplicationCopies(credentialId);
+    return new Response(SuperJSON.stringify({ copies }));
+  } catch (error) {
+    return new Response(
+      SuperJSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error"
+      }),
+      { status: 400 }
+    );
+  }
+}
+
+// endpoints/credentials/create_copy_POST.schema.ts
+var schema6 = external_exports.object({
+  credentialId: external_exports.string().trim().min(4).max(64),
+  recipientName: external_exports.string().trim().min(2).max(100),
+  purpose: external_exports.string().trim().min(2).max(200)
+});
+
+// endpoints/credentials/create_copy_POST.ts
+async function handle8(request) {
+  try {
+    const input = schema6.parse(SuperJSON.parse(await request.text()));
+    const copy2 = await createApplicationCopy({
+      credentialId: input.credentialId,
+      recipientName: input.recipientName,
+      purpose: input.purpose
+    });
+    return new Response(SuperJSON.stringify({ copy: copy2 }));
+  } catch (error) {
+    return new Response(
+      SuperJSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error"
+      }),
+      { status: 400 }
+    );
+  }
+}
+
+// endpoints/credentials/deactivate_copy_POST.schema.ts
+var schema7 = external_exports.object({
+  copyId: external_exports.string().trim().min(4).max(64)
+});
+
+// endpoints/credentials/deactivate_copy_POST.ts
+async function handle9(request) {
+  try {
+    const input = schema7.parse(SuperJSON.parse(await request.text()));
+    const success = await deactivateCopy(input.copyId);
+    return new Response(SuperJSON.stringify({ success }));
+  } catch (error) {
+    return new Response(
+      SuperJSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error"
+      }),
+      { status: 400 }
+    );
+  }
+}
+
+// endpoints/credentials/misuse_alerts_GET.ts
+async function handle10(request) {
+  try {
+    const url = new URL(request.url);
+    const credentialId = url.searchParams.get("credentialId") ?? void 0;
+    const incidents = listMisuseIncidents(credentialId);
+    return new Response(SuperJSON.stringify({ incidents }));
+  } catch (error) {
+    return new Response(
+      SuperJSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error"
+      }),
+      { status: 400 }
+    );
+  }
+}
+
 // api/server.ts
 var routes = {
   "GET credentials/list": handle,
@@ -22632,7 +22888,11 @@ var routes = {
   "POST credentials/revoke": handle3,
   "POST credentials/tamper": handle4,
   "POST credentials/verify": handle5,
-  "POST credentials/holder": handle6
+  "POST credentials/holder": handle6,
+  "GET credentials/copies": handle7,
+  "POST credentials/create_copy": handle8,
+  "POST credentials/deactivate_copy": handle9,
+  "GET credentials/misuse_alerts": handle10
 };
 async function readBody(req) {
   const chunks = [];

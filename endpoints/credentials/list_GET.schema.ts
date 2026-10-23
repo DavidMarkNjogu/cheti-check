@@ -20,9 +20,32 @@ export type AuditEntry = {
   createdAt: Date;
 };
 
+export type ApplicationCopySummary = {
+  copyId: string;
+  credentialId: string;
+  recipientName: string;
+  purpose: string;
+  copyHash: string;
+  createdAt: Date;
+  deactivatedAt: Date | null;
+};
+
+export type MisuseIncidentSummary = {
+  id: number;
+  copyId: string;
+  credentialId: string;
+  recipientName: string;
+  studentName: string;
+  mismatches: string[];
+  status: "ACTIVE_ALERT" | "INVESTIGATING" | "RESOLVED";
+  detectedAt: Date;
+};
+
 export type OutputType = {
   credentials: CredentialSummary[];
   audit: AuditEntry[];
+  copies?: ApplicationCopySummary[];
+  misuseIncidents?: MisuseIncidentSummary[];
 };
 
 export const getCredentialsList = async (

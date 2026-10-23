@@ -30,10 +30,34 @@ export type MemoryAudit = {
   createdAt: Date;
 };
 
+export type ApplicationCopy = {
+  copyId: string;
+  credentialId: string;
+  recipientName: string;
+  purpose: string;
+  copyHash: string;
+  createdAt: Date;
+  deactivatedAt: Date | null;
+};
+
+export type MisuseIncident = {
+  id: number;
+  copyId: string;
+  credentialId: string;
+  recipientName: string;
+  studentName: string;
+  mismatches: string[];
+  status: "ACTIVE_ALERT" | "INVESTIGATING" | "RESOLVED";
+  detectedAt: Date;
+};
+
 const memoryCredentials: MemoryCredential[] = [];
 const memoryAuditLog: MemoryAudit[] = [];
+const memoryCopies: ApplicationCopy[] = [];
+const memoryMisuseIncidents: MisuseIncident[] = [];
 let memoryKeys: { id: number; publicKeyPem: string; privateKeyPem: string } | null = null;
 let auditIdSeq = 1;
+let misuseIdSeq = 1;
 
 export const isMemoryMode = () => !databaseUrl || databaseUrl.includes("missing:missing");
 
@@ -212,18 +236,159 @@ export async function revokeCredential(
   return true;
 }
 
-export type VerifyStatus = "AUTHENTIC" | "ALTERED" | "REVOKED" | "NOT_FOUND";
+export type VerifyStatus =
+  | "AUTHENTIC"
+  | "ALTERED"
+  | "REVOKED"
+  | "NOT_FOUND"
+  | "AUTHENTIC_COPY"
+  | "ALTERED_COPY"
+  | "COPY_DEACTIVATED";
+
+export async function createApplicationCopy(input: {
+  credentialId: string;
+  recipientName: string;
+  purpose: string;
+}): Promise<ApplicationCopy> {
+  const slug = input.recipientName
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .slice(0, 10);
+  const copyId = `${input.credentialId}-CPY-${slug || "APP"}-${makeId().slice(0, 4)}`;
+  const copyHash = sha256Hex(`${input.credentialId}:${input.recipientName}:${input.purpose}`);
+
+  const copy: ApplicationCopy = {
+    copyId,
+    credentialId: input.credentialId,
+    recipientName: input.recipientName,
+    purpose: input.purpose,
+    copyHash,
+    createdAt: new Date(),
+    deactivatedAt: null,
+  };
+
+  if (isMemoryMode()) {
+    memoryCopies.push(copy);
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "COPY_GENERATED",
+      credentialId: input.credentialId,
+      detail: `Application copy generated for ${input.recipientName} (${input.purpose})`,
+      createdAt: new Date(),
+    });
+    return copy;
+  }
+
+  await db
+    .insertInto("applicationCopies" as any)
+    .values({
+      copyId: copy.copyId,
+      credentialId: copy.credentialId,
+      recipientName: copy.recipientName,
+      purpose: copy.purpose,
+      copyHash: copy.copyHash,
+      createdAt: copy.createdAt,
+    } as any)
+    .execute();
+
+  await db
+    .insertInto("auditLog")
+    .values({
+      event: "COPY_GENERATED",
+      credentialId: input.credentialId,
+      detail: `Application copy generated for ${input.recipientName} (${input.purpose})`,
+    })
+    .execute();
+
+  return copy;
+}
+
+export async function deactivateCopy(copyId: string): Promise<boolean> {
+  if (isMemoryMode()) {
+    const found = memoryCopies.find((c) => c.copyId === copyId);
+    if (!found || found.deactivatedAt) return false;
+    found.deactivatedAt = new Date();
+    memoryAuditLog.push({
+      id: auditIdSeq++,
+      event: "COPY_DEACTIVATED",
+      credentialId: found.credentialId,
+      detail: `Application copy ${copyId} for ${found.recipientName} deactivated by graduate`,
+      createdAt: new Date(),
+    });
+    return true;
+  }
+
+  const res = await db
+    .updateTable("applicationCopies" as any)
+    .set({ deactivatedAt: new Date() } as any)
+    .where("copyId", "=", copyId)
+    .where("deactivatedAt", "is", null)
+    .executeTakeFirst();
+
+  return Number(res.numUpdatedRows) > 0;
+}
+
+export function listApplicationCopies(credentialId?: string): ApplicationCopy[] {
+  if (credentialId) {
+    return memoryCopies.filter((c) => c.credentialId === credentialId);
+  }
+  return [...memoryCopies];
+}
+
+export function listMisuseIncidents(credentialId?: string): MisuseIncident[] {
+  if (credentialId) {
+    return memoryMisuseIncidents.filter((m) => m.credentialId === credentialId);
+  }
+  return [...memoryMisuseIncidents];
+}
+
+export function tamperCopy(copyId: string): boolean {
+  const copy = memoryCopies.find((c) => c.copyId === copyId);
+  if (!copy) return false;
+  const root = memoryCredentials.find((c) => c.credentialId === copy.credentialId);
+  if (!root) return false;
+
+  // Log a simulated misuse incident
+  const incident: MisuseIncident = {
+    id: misuseIdSeq++,
+    copyId: copy.copyId,
+    credentialId: copy.credentialId,
+    recipientName: copy.recipientName,
+    studentName: root.studentName,
+    mismatches: [
+      `Award altered: Expected '${root.award}', submitted as 'First Class Distinction'`,
+      `Graduation year altered: Expected ${root.graduationYear}, submitted as ${root.graduationYear - 1}`,
+    ],
+    status: "ACTIVE_ALERT",
+    detectedAt: new Date(),
+  };
+  memoryMisuseIncidents.unshift(incident);
+
+  memoryAuditLog.push({
+    id: auditIdSeq++,
+    event: "MISUSE_FLAGGED",
+    credentialId: copy.credentialId,
+    detail: `Forensic alert: Altered copy ${copy.copyId} issued to ${copy.recipientName} uploaded for verification`,
+    createdAt: new Date(),
+  });
+
+  return true;
+}
 
 export async function checkCredential(credentialId: string, fileHash?: string) {
+  // Check if this is an application copy
+  let matchedCopy = memoryCopies.find((c) => c.copyId === credentialId);
+  let effectiveCredentialId = matchedCopy ? matchedCopy.credentialId : credentialId;
+
   let row: MemoryCredential | undefined;
 
   if (isMemoryMode()) {
-    row = memoryCredentials.find((c) => c.credentialId === credentialId);
+    row = memoryCredentials.find((c) => c.credentialId === effectiveCredentialId);
   } else {
     const dbRow = await db
       .selectFrom("credentials")
       .selectAll()
-      .where("credentialId", "=", credentialId)
+      .where("credentialId", "=", effectiveCredentialId)
       .executeTakeFirst();
     if (dbRow) {
       row = {
@@ -264,15 +429,61 @@ export async function checkCredential(credentialId: string, fileHash?: string) {
   }
 
   let status: VerifyStatus = "AUTHENTIC";
-  if (!signatureOk) status = "ALTERED";
-  else if (row.revokedAt) status = "REVOKED";
-  else if (fileCheck === "MISMATCH") status = "ALTERED";
+
+  if (matchedCopy) {
+    if (matchedCopy.deactivatedAt) {
+      status = "COPY_DEACTIVATED";
+    } else if (!signatureOk || fileCheck === "MISMATCH") {
+      status = "ALTERED_COPY";
+      // Record misuse incident
+      const existing = memoryMisuseIncidents.find((m) => m.copyId === matchedCopy!.copyId);
+      if (!existing) {
+        memoryMisuseIncidents.unshift({
+          id: misuseIdSeq++,
+          copyId: matchedCopy.copyId,
+          credentialId: matchedCopy.credentialId,
+          recipientName: matchedCopy.recipientName,
+          studentName: row.studentName,
+          mismatches: [
+            "Cryptographic signature check failed or file hash mismatch against issuer records",
+          ],
+          status: "ACTIVE_ALERT",
+          detectedAt: new Date(),
+        });
+      }
+    } else if (row.revokedAt) {
+      status = "REVOKED";
+    } else {
+      status = "AUTHENTIC_COPY";
+    }
+  } else {
+    if (!signatureOk) status = "ALTERED";
+    else if (row.revokedAt) status = "REVOKED";
+    else if (fileCheck === "MISMATCH") status = "ALTERED";
+  }
 
   return {
     status,
     fileCheck,
     revokedAt: row.revokedAt,
     recordHash: row.recordHash,
+    copy: matchedCopy
+      ? {
+          copyId: matchedCopy.copyId,
+          recipientName: matchedCopy.recipientName,
+          purpose: matchedCopy.purpose,
+          deactivatedAt: matchedCopy.deactivatedAt,
+          createdAt: matchedCopy.createdAt,
+        }
+      : undefined,
+    forensicAttribution:
+      matchedCopy && status === "ALTERED_COPY"
+        ? {
+            copyId: matchedCopy.copyId,
+            recipientName: matchedCopy.recipientName,
+            leakedAt: matchedCopy.createdAt,
+          }
+        : undefined,
     record: {
       studentName: row.studentName,
       institution: row.institution,
@@ -285,6 +496,12 @@ export async function checkCredential(credentialId: string, fileHash?: string) {
 export async function ensureSeeded() {
   if (isMemoryMode()) {
     if (memoryCredentials.length > 0) return;
+    const graceId = await issueCredential({
+      studentName: "Grace Muthoni Kariuki",
+      programme: "Computer Science",
+      award: "Bachelor of Science in Computer Science",
+      graduationYear: 2026,
+    });
     await issueCredential({
       studentName: "Amina Wanjiru",
       programme: "Computer Science",
@@ -304,6 +521,34 @@ export async function ensureSeeded() {
       graduationYear: 2026,
     });
     await revokeCredential(revokedId, "ISSUED_IN_ERROR");
+
+    // Seed application copies for Grace
+    const safaricomCopy = await createApplicationCopy({
+      credentialId: graceId,
+      recipientName: "Safaricom PLC",
+      purpose: "Graduate Software Engineer Trainee 2026",
+    });
+    await createApplicationCopy({
+      credentialId: graceId,
+      recipientName: "KCB Bank Kenya",
+      purpose: "Junior Cloud Infrastructure Analyst",
+    });
+
+    // Seed a simulated misuse incident for demonstration
+    memoryMisuseIncidents.push({
+      id: misuseIdSeq++,
+      copyId: safaricomCopy.copyId,
+      credentialId: graceId,
+      recipientName: "Safaricom PLC",
+      studentName: "Grace Muthoni Kariuki",
+      mismatches: [
+        "Classification altered: Expected 'First Class Honours', received 'Executive Distinction'",
+        "Graduation year altered: Expected 2026, received 2024",
+      ],
+      status: "ACTIVE_ALERT",
+      detectedAt: new Date(Date.now() - 1000 * 60 * 45), // 45 mins ago
+    });
+
     return;
   }
 
@@ -313,6 +558,12 @@ export async function ensureSeeded() {
     .limit(1)
     .executeTakeFirst();
   if (first) return;
+  const graceId = await issueCredential({
+    studentName: "Grace Muthoni Kariuki",
+    programme: "Computer Science",
+    award: "Bachelor of Science in Computer Science",
+    graduationYear: 2026,
+  });
   await issueCredential({
     studentName: "Amina Wanjiru",
     programme: "Computer Science",
@@ -332,6 +583,12 @@ export async function ensureSeeded() {
     graduationYear: 2026,
   });
   await revokeCredential(revokedId, "ISSUED_IN_ERROR");
+
+  await createApplicationCopy({
+    credentialId: graceId,
+    recipientName: "Safaricom PLC",
+    purpose: "Graduate Software Engineer Trainee 2026",
+  });
 }
 
 export function getMemoryCredentials() {
@@ -351,7 +608,11 @@ export function getMemoryCredentials() {
   const audit = [...memoryAuditLog]
     .sort((a, b) => b.id - a.id)
     .slice(0, 40);
-  return { credentials, audit };
+  const copies = [...memoryCopies]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  const misuseIncidents = [...memoryMisuseIncidents]
+    .sort((a, b) => b.detectedAt.getTime() - a.detectedAt.getTime());
+  return { credentials, audit, copies, misuseIncidents };
 }
 
 export function getMemoryHolderRecord(credentialId: string) {

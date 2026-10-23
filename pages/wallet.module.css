@@ -1,0 +1,235 @@
+.walletContainer {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.header {
+  border-bottom: 2px solid var(--border);
+  padding-bottom: var(--spacing-4);
+}
+
+.kicker {
+  font-family: var(--font-family-monospace);
+  font-size: 0.8rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  margin-bottom: var(--spacing-1);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.subtitle {
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: 720px;
+}
+
+/* MISUSE ALERT BANNER */
+.alertBanner {
+  background: #fdf2f2;
+  border: 2px solid var(--error);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  box-shadow: var(--shadow-md);
+}
+
+.alertHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--error);
+  font-family: var(--font-family-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.alertContent {
+  font-size: 0.9rem;
+  color: var(--foreground);
+  line-height: 1.5;
+}
+
+.alertActions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+/* ROOT CREDENTIAL CARD */
+.credentialHero {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.studentName {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 var(--spacing-1);
+}
+
+.degreeTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin: 0 0 var(--spacing-1);
+}
+
+.metaText {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+
+.hashBox {
+  font-family: var(--font-family-monospace);
+  font-size: 0.78rem;
+  background: var(--surface);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+  color: var(--foreground);
+}
+
+/* GENERATOR CARD */
+.generatorCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-6);
+}
+
+.sectionTitle {
+  font-family: var(--font-family-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.sectionDesc {
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  margin: 0 0 var(--spacing-4);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quickPills {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-2);
+}
+
+.pillBtn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--foreground);
+  transition: all 0.15s ease;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pillBtn:hover {
+  background: #ded5bf;
+}
+
+/* COPIES LIST */
+.copiesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.copyCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.copyCard.deactivated {
+  opacity: 0.65;
+  background: #f4eee1;
+}
+
+.copyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.copyRecipient {
+  font-family: var(--font-family-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.copyMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.88rem;
+}
+
+.copyActions {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+  align-items: center;
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--border);
+}

@@ -113,6 +113,19 @@ Imagine a secret lockbox where the lockbox has a student's name inside, but the 
 
 ---
 
+### Attack 6: The "KNEC Already Does This" Attack (The Government Database Edge)
+
+#### The Trap Question:
+> *"Why would employers use ChetiCheck when KNEC already has a government verification portal with the official national database? Doesn't the government have an unassailable edge?"*
+
+#### The Plain-English Analogy:
+Think of the National Transport and Safety Authority (NTSA) vs a private car dealership. NTSA gives you a driving license, but NTSA has no record of your internal mechanical inspections or private service warranties. Similarly, KNEC is strictly for high school (KCSE/KCPE). KNEC does not issue or hold university degrees for Riara, Strathmore, or UoN. Furthermore, KNEC takes 14 business days and charges KES 2,300 for a paper letter. ChetiCheck is instant (200 milliseconds) on a mobile phone for zero shillings.
+
+#### What to Say Word-for-Word on Stage:
+> "That is a common misconception about Kenyan educational jurisdiction. KNEC only covers primary, secondary, and basic TVET exams (KCPE/KCSE). KNEC has zero mandate or database records for university degrees or diplomas; higher education is regulated by individual university charters and the Commission for University Education (CUE). Furthermore, KNEC's QMIS portal requires physical document uploads, charges KES 2,300 per verification letter, and takes 10 to 14 working days. ChetiCheck solves the unaddressed higher-education sector with sub-second, zero-cost QR cryptographic verification, while adhering to W3C Verifiable Credential standards that can directly feed into the Kenya National Qualifications Authority (KNQA) national framework."
+
+---
+
 ## 3. Quick-Reference Stage Defense Cheat Sheet
 
 Print this or keep it open on your phone backstage before walking up to pitch:
@@ -124,3 +137,4 @@ Print this or keep it open on your phone backstage before walking up to pitch:
 | **Crypto Redundancy** | Architecture | Boarding pass vs phone call | "Signatures provide zero-trust mathematical proof independent of server integrity." |
 | **Bureaucracy** | Business | Free pilot for faculty | "Free departmental utility; revenue comes from employer background check APIs." |
 | **Data Privacy** | Law (KDPA) | Destroy the key, not the ledger | "Complies via Cryptographic Shredding under ODPC guidelines." |
+| **KNEC Monopoly** | Market Reality | High school vs University | "KNEC only handles KCSE/KCPE and takes 14 days at KES 2,300; ChetiCheck covers universities in 200ms." |
